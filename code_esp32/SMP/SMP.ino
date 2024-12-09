@@ -3,8 +3,8 @@
 #include <MFRC522.h>
 #include <DHT.h>
 
-#define WIFI_SSID "Q coffee_tea 1"
-#define WIFI_PASSWORD "250ahoangdieu2"
+#define WIFI_SSID "DESKTOP-2HNAKTN 6818"
+#define WIFI_PASSWORD "anhemcungnha"
 
 // Firebase thông tin
 #define FIREBASE_HOST "tt-iot-53225-default-rtdb.firebaseio.com"
@@ -17,7 +17,7 @@
 // Pin kết nối DHT và SRF05
 DHT dht(4, DHT11);  // Khai báo chân cho cảm biến DHT
 const int trigPin = 13;
-const int echoPin = 14;
+const int echoPin = 12;
 #define SOUND_SPEED 0.034 // Tốc độ âm thanh trong không khí (cm/us)
 
 long duration;
@@ -30,7 +30,8 @@ MFRC522 rfid(SS_PIN, RST_PIN);  // Khởi tạo đối tượng MFRC522
 
 void setup() {
   Serial.begin(115200);
-  
+  //Cấu hình chân cho đèn
+  pinMode(14, OUTPUT);
   // Cấu hình chân I/O
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
@@ -90,6 +91,20 @@ void loop() {
     } else {
       Serial.print("Failed to update vehicle A1 status ");
       Serial.println(firebaseData.errorReason());
+    }
+  }
+
+  // Đọc trạng thái đèn LED vị trí A1 từ Firebase 
+  if (Firebase.getInt(firebaseData, "/parking/light/A1")) {
+    int lightStatus = firebaseData.intData(); // Lấy giá trị đèn
+    Serial.print("LED A1 Status: ");
+    Serial.println(lightStatus);
+    if (lightStatus == 1) {
+        Serial.println("Turning ON LED...");
+        digitalWrite(14, HIGH); // Bật đèn
+    } else {
+        Serial.println("Turning OFF LED...");
+        digitalWrite(14, LOW); // Tắt đèn
     }
   }
 
